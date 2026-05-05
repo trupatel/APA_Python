@@ -6,6 +6,7 @@ def write_short_circuit_script(cape_path,
                                capedbloc,
                                Fault_buses,Fault_Res,Fault_types,
                                Result_File,
+                               header = True,
                                capeGFloc=None,
                                ACC_Factor=None,
                                recorder_LOCarray=[],
@@ -65,12 +66,21 @@ def write_short_circuit_script(cape_path,
         g.write("\t\tsave (VA) busnum as V_aF\n\t\tsave abs(V_aF) as Va_mag\n\t\tsave arg(V_aF) as Va_ang\n\n")
         g.write("\t\tsave (VB) busnum as V_bF\n\t\tsave abs(V_bF) as Vb_mag\n\t\tsave arg(V_bF) as Vb_ang\n\n")
         g.write("\t\tsave (VC) busnum as V_cF\n\t\tsave abs(V_cF) as Vc_mag\n\t\tsave arg(V_cF) as Vc_ang\n\n")
-        
-        #g.write("\t\tsave 'Fault' as relay_F")
-        
+        # record sequecne curretns I0,I1,I2
+        g.write("\t\t\tsave (IFZ * baseamps) busnum as IRESF\n\t\t\tsave abs(IRESF) as IRES_mag\n\t\t\tsave arg(IRESF) as IRES_ang\n\n")
+        g.write("\t\t\tsave (IFP * baseamps) busnum as I_PF\n\t\t\tsave abs(I_PF) as IP_mag\n\t\t\tsave arg(I_PF) as IP_ang\n\n")
+        g.write("\t\t\tsave (IFN * baseamps) busnum as I_NF\n\t\t\tsave abs(I_NF) as IN_mag\n\t\t\tsave arg(I_NF) as IN_ang\n\n")
+        # recored sequence voltage V0,V1,V2
+        g.write("\t\t\tsave (VZ) busnum as V_ZF\n\t\t\tsave abs(V_ZF) as VZ_mag\n\t\t\tsave arg(V_ZF) as VZ_ang\n\n")
+        g.write("\t\t\tsave (VP) busnum as V_PF\n\t\t\tsave abs(V_PF) as VP_mag\n\t\t\tsave arg(V_PF) as VP_ang\n\n")
+        g.write("\t\t\tsave (VN) busnum as V_NF\n\t\t\tsave abs(V_NF) as VN_mag\n\t\t\tsave arg(V_NF) as VN_ang\n\n")
+
+        # combine and write to file
         g.write("\t\tsave strcat(ntoa(busnum),sep_char,'Fault',sep_char,fault_RX,sep_char,$2,sep_char, ntoa(Ia_mag), sep_char, ntoa(Ia_ang), sep_char,ntoa(Ib_mag), sep_char,ntoa(Ib_ang), sep_char,ntoa(Ic_mag), sep_char,ntoa(Ic_ang)) as strIFabc\n")
         g.write("\t\tsave strcat(sep_char,ntoa(Va_mag), sep_char,ntoa(Va_ang),sep_char,ntoa(Vb_mag), sep_char,ntoa(Vb_ang), sep_char,ntoa(Vc_mag),sep_char,ntoa(Vc_ang)) as strVFabc\n")
-        g.write("\t\tsave strcat(strIFabc,strVFabc,sep_char,ntoa(MXI_TOTAL_ITER)) as strFVIs\n")
+        g.write("\t\t\tsave strcat(sep_char,ntoa(IRES_mag,\"F0.4\"),sep_char,ntoa(IRES_ang,\"F0.4\"),sep_char,ntoa(IP_mag,\"F0.4\"),sep_char,ntoa(IP_ang,\"F0.4\"),sep_char,ntoa(IN_mag,\"F0.4\"),sep_char,ntoa(IN_ang,\"F0.4\")) as strIF012\n")                
+        g.write("\t\t\tsave strcat(sep_char,ntoa(VZ_mag,\"F0.4\"),sep_char,ntoa(VZ_ang,\"F0.4\"),sep_char,ntoa(VP_mag,\"F0.4\"), sep_char,ntoa(VP_ang,\"F0.4\"), sep_char,ntoa(VN_mag,\"F0.4\"),sep_char,ntoa(VN_ang,\"F0.4\")) as strVF012\n")
+        g.write("\t\t\tsave strcat(strIFabc,strVFabc,strIF012,strVF012,sep_char,ntoa(MXI_TOTAL_ITER)) as strFVIs\n\n")
         g.write("\t\tdisplay strFVIs\n\n")
         
     if(len(record_IBRstatus)>0):
@@ -94,7 +104,7 @@ def write_short_circuit_script(cape_path,
         g.write("\t\t\tsave (VC) from_bus(i) as V_c\n\t\t\tsave abs(V_c) as Vc_mag\n\t\t\tsave arg(V_c) as Vc_ang\n\n")
         
         # record sequecne curretns I0,I1,I2
-        g.write("\t\t\tsave (3 * IZ* baseamps) from_bus(i) to_bus(i) circuit_n(i) AS IRES\n\t\t\tsave abs(IRES) as IRES_mag\n\t\t\tsave arg(IRES) as IRES_ang\n\n")
+        g.write("\t\t\tsave (IZ * baseamps) from_bus(i) to_bus(i) circuit_n(i) AS IRES\n\t\t\tsave abs(IRES) as IRES_mag\n\t\t\tsave arg(IRES) as IRES_ang\n\n")
         g.write("\t\t\tsave (IP * baseamps) from_bus(i) to_bus(i) circuit_n(i) AS I_P\n\t\t\tsave abs(I_P) as IP_mag\n\t\t\tsave arg(I_P) as IP_ang\n\n")
         g.write("\t\t\tsave (IN * baseamps) from_bus(i) to_bus(i) circuit_n(i) AS I_N\n\t\t\tsave abs(I_N) as IN_mag\n\t\t\tsave arg(I_N) as IN_ang\n\n")
         
@@ -159,6 +169,10 @@ def write_short_circuit_script(cape_path,
         else:
             dbs_str = dbs_str + ','+str(bus)
     g.write(dbs_str+')\n')
+    
+    # write result file header
+    if(header):
+        g.write("display \"Fault_Bus,Relay,Fault_Z,Fault_Type,Ia_mag,Ia_ang,Ib_mag,Ib_ang,Ic_mag,Ic_ang,Va_mag,Va_ang,Vb_mag,Vb_ang,Vc_mag,Vc_ang,I0_mag,I0_ang,I1_mag,I1_ang,I2_mag,I2_ang,V0_mag,V0_ang,V1_mag,V1_ang,V2_mag,V2_ang,conv\" \n")
     
     # write which faults to run 
     for Fault_type in Fault_types:
