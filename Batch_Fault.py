@@ -58,7 +58,7 @@ def collect_results_stats(Result_File_path,Fault_buses,Fault_types,Fault_Res,ACC
 
 # %% Connect CAPE Database 
 # APA database path
-capedbloc = os.getcwd() + r"\APA_converge\IEEE14_ConCh.gdb"     
+capedbloc = os.getcwd() + r"\APA_DB\IEEE14_ConCh.gdb"     
 con = APApy.connect_to_DB(capedbloc)
 
 # %% get Database Tables
