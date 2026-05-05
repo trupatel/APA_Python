@@ -182,7 +182,7 @@ def get_switches_info(con):
 
 def get_machine_data(con,Machine_bus):
     MACHINEs = get_Table_Data(con,'MACHINE_DATA')
-    machine = [x for x in MACHINEs if MACHINEs['BUS_NUMBER'] == Machine_bus]
+    machine = [x for x in MACHINEs if x['BUS_NUMBER'] == Machine_bus]
     if(len(machine)==0):
         print('\033[93m'+"Warning: No machine fount at bus "+str(Machine_bus)+"\n")
         return []
