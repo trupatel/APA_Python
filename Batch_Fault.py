@@ -31,6 +31,8 @@ def collect_results_stats(Result_File_path,Fault_buses,Fault_types,Fault_Res,ACC
 
     if(IBR_LOC):
         nIBRs = len(IBR_LOC)
+    else:
+        nIBRs = 0
     
     converged_fault_iters = [x[3] for x in Results if x[3]]
     nFaults = len(Fault_buses)*len(Fault_types)*len(Fault_Res)
@@ -72,7 +74,7 @@ IBR_Tags = [x['GENERATOR_TAG'] for x in Tables['EPRI_WTG_DATA']]
 Machines_Bus_Tag = [(x['BUS_NUMBER'],x['TAG'],x['USE_CURRENT_LIMIT']) for x in Tables['MACHINE_DATA'] ]
 IBR_Buses = []  
 for IBR_Tag in IBR_Tags:
-    Ibr_bus = [x[0] for x in Machines_Bus_Tag if x[1] == IBR_Tag and x[2] == 4]
+    Ibr_bus = [x[0] for x in Machines_Bus_Tag if x[1] == IBR_Tag and x[2] != 0]
     if(Ibr_bus):
         for bus in Ibr_bus:
             IBR_Buses.append(bus)
