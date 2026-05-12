@@ -58,7 +58,7 @@ def collect_results_stats(Result_File_path,Fault_buses,Fault_types,Fault_Res,ACC
 
 # %% Connect CAPE Database 
 # APA database path
-capedbloc = os.getcwd() + r"\APA_DB\IEEE14_ConCh.gdb"     
+capedbloc = os.getcwd() + r"\APA_converge\IEEE14_ConCh.gdb"     
 con = APApy.connect_to_DB(capedbloc)
 
 # %% get Database Tables
@@ -106,22 +106,32 @@ cape_path = r"C:\Program Files\Siemens\APA16\progs\apa.exe"
 # dir contaning script
 script_files = os.getcwd()+'\\'
 # CUPL script name
-script_file_name = "Test_Fault_sim"
+script_file_name = "Test_ACC_Fault_sim"
 # Simulation Result Report 
-Result_File1 = os.getcwd()+'\\'+'APA_fault_report.csv'
-ACC_Factor1 = 1.0
+Result_File1 = os.getcwd()+'\\'+'APA_ACC_fault_report.csv'
+
+# specify accleartion factors 
+
+# ACC_Factor1 = {'VCCS': 0.1,
+#                'EPRI_Type_IV':[0.29,0.71],
+#                'EPRI_Type_III':0.4,
+#                'BESS':0.6
+#                }
+
+ACC_Factor1 = 0.5
+
 # simulate Faults and collect Data
 start_Time = time.time()
 # write CUPL script
-script_abs_path = APApy.write_short_circuit_script(cape_path,
-                                                    script_files,script_file_name,
+script_abs_path = APApy.write_short_circuit_script(script_files,
+                                                   script_file_name,
                                                     capedbloc,
                                                     Fault_buses,Fault_Res_con,Fault_types,
                                                     Result_File1,
                                                     ACC_Factor=ACC_Factor1,
                                                     record_FaultBus=True,
                                                     recorder_LOCarray=recorderLoc,
-                                                    closeAPA=True,
+                                                    closeAPA=False,
                                                     header=None)    # Must be None , need find fix
 
 # run Script
